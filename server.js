@@ -220,9 +220,10 @@ const server = http.createServer(async (req, res) => {
 
                 const downloadUrl = `/api/v1/media/stream${data.type === 'audio' ? '-audio' : ''}?url=${encodeURIComponent(data.url)}`;
 
-                const ytdlpPath = path.join(__dirname, 'backend', 'yt-dlp.exe');
+                const isWin = process.platform === 'win32';
+                const ytdlpPath = isWin ? path.join(__dirname, 'backend', 'yt-dlp.exe') : 'yt-dlp';
+                
                 const ytDlp = spawn(ytdlpPath, [
-                    '--js-runtimes', 'node',
                     '--no-warnings', '--no-download',
                     '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j',
                     data.url
@@ -350,7 +351,6 @@ const server = http.createServer(async (req, res) => {
         let isFacebook = url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.gg');
 
         let ytDlpArgs = [
-            '--js-runtimes', 'node',
             '--ffmpeg-location', ffmpegDir,
             '-S', 'vcodec:h264,res,acodec:m4a',
             '-f', `bestvideo[ext=mp4][height<=${resolution}]+bestaudio[ext=m4a]/best[ext=mp4][height<=${resolution}]/best`,
@@ -364,7 +364,6 @@ const server = http.createServer(async (req, res) => {
         if (isFacebook) {
             // Ưu tiên bản pre-muxed mp4 H264 (thường có mã format là hd hoặc sd) để tránh AV1 DASH và không phải re-encode gây kẹt tiến trình 40%
             ytDlpArgs = [
-                '--js-runtimes', 'node',
                 '--ffmpeg-location', ffmpegDir,
                 '-f', `hd/sd/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best`,
                 '--merge-output-format', 'mp4',
