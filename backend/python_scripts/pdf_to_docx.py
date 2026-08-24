@@ -33,10 +33,11 @@ def convert_scanned_pdf(doc, docx_file):
     if os.path.exists(tesseract_cmd):
         pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
     
-    # Set tessdata path
+    # Set tessdata path if running locally on Windows
     tessdata_dir = os.path.join(os.path.dirname(__file__), '..', 'tesseract_bin', 'tessdata')
     tessdata_dir = os.path.abspath(tessdata_dir)
-    os.environ['TESSDATA_PREFIX'] = tessdata_dir
+    if os.path.exists(tessdata_dir):
+        os.environ['TESSDATA_PREFIX'] = tessdata_dir
 
     for page_num in range(len(doc)):
         page = doc[page_num]

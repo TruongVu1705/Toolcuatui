@@ -14,10 +14,13 @@ RUN apt-get update && apt-get install -y \
     libatk-bridge2.0-0 \
     libgtk-3-0 \
     libgbm-dev \
+    tesseract-ocr \
+    tesseract-ocr-vie \
+    tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
-# Cài đặt Rembg (Xóa nền ảnh) và yt-dlp (Trình tải video)
-RUN pip3 install rembg onnxruntime yt-dlp
+# Cài đặt Rembg (Xóa nền ảnh), yt-dlp (Trình tải video) và Thư viện chuyển đổi PDF
+RUN pip3 install rembg onnxruntime yt-dlp pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
 
 # Cài đặt Chrome cho Puppeteer
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \

@@ -43,8 +43,11 @@ async function convertPdfToDocx(pdfBuffer, originalFilename = 'document.pdf') {
         const tempPdfPath = path.join(os.tmpdir(), `${tempId}.pdf`);
         const tempDocxPath = path.join(os.tmpdir(), `${tempId}.docx`);
 
-        // Python executable path
-        const pythonPath = path.join(process.env.LOCALAPPDATA, 'Programs', 'Python', 'Python312', 'python.exe');
+        // Python executable path (Tương thích Linux/Docker và Windows)
+        const isWin = process.platform === 'win32';
+        const pythonPath = isWin 
+            ? path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python312', 'python.exe')
+            : 'python3';
         const scriptPath = path.join(__dirname, 'backend', 'python_scripts', 'pdf_to_docx.py');
 
         // Write PDF buffer to temp file
@@ -98,8 +101,11 @@ async function convertPdfToPptx(pdfBuffer, originalFilename = 'presentation.pdf'
         const tempPdfPath = path.join(os.tmpdir(), `${tempId}.pdf`);
         const tempPptxPath = path.join(os.tmpdir(), `${tempId}.pptx`);
 
-        // Python executable path
-        const pythonPath = path.join(process.env.LOCALAPPDATA, 'Programs', 'Python', 'Python312', 'python.exe');
+        // Python executable path (Tương thích Linux/Docker và Windows)
+        const isWin = process.platform === 'win32';
+        const pythonPath = isWin 
+            ? path.join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python312', 'python.exe')
+            : 'python3';
         const scriptPath = path.join(__dirname, 'backend', 'python_scripts', 'pdf_to_pptx.py');
 
         // Write PDF buffer to temp file
