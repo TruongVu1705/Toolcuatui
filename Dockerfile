@@ -1,4 +1,4 @@
-FROM node:18-bullseye-slim
+FROM node:20-bookworm-slim
 
 # Cài đặt Python, FFmpeg và các thư viện cần thiết cho Puppeteer / Rembg
 RUN apt-get update && apt-get install -y \
@@ -20,7 +20,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Cài đặt Rembg (Xóa nền ảnh), yt-dlp (Trình tải video) và Thư viện chuyển đổi PDF
-RUN pip3 install rembg onnxruntime yt-dlp pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
+# Dùng -U (upgrade) để đảm bảo luôn tải yt-dlp phiên bản mới nhất nhằm đối phó với update của Youtube
+RUN pip3 install -U --break-system-packages rembg onnxruntime yt-dlp pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
 
 # Cài đặt Chrome cho Puppeteer
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \

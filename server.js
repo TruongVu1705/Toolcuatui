@@ -225,6 +225,7 @@ const server = http.createServer(async (req, res) => {
                 
                 const ytDlp = spawn(ytdlpPath, [
                     '--no-warnings', '--no-download',
+                    '--extractor-args', 'youtube:player_client=ios,android,web',
                     '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j',
                     data.url
                 ], { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -352,6 +353,7 @@ const server = http.createServer(async (req, res) => {
 
         let ytDlpArgs = [
             '--ffmpeg-location', ffmpegDir,
+            '--extractor-args', 'youtube:player_client=ios,android,web',
             '-S', 'vcodec:h264,res,acodec:m4a',
             '-f', `bestvideo[ext=mp4][height<=${resolution}]+bestaudio[ext=m4a]/best[ext=mp4][height<=${resolution}]/best`,
             '--merge-output-format', 'mp4',
