@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: đa-công-cụ
+    env: docker
+    region: singapore
+    plan: free
+    dockerCommand: "node server.js"
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8080

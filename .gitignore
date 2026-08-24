@@ -1,0 +1,14 @@
+node_modules/
+.tempmediaStorage/
+backend/tmp/
+.env
+.DS_Store
+*.log
+innoextract/
+innoextract.zip
+scratch/
+brain/
+.gemini/
+*.exe
+*.dll
+backend/tesseract_bin/

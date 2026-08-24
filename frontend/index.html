@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniTool Hub - Bộ Công Cụ Đa Năng Modern Web</title>
+    <meta name="description"
+        content="Trang web công cụ đa năng hiện đại: chuyển PDF sang Word/PPTX, rút gọn link, tạo mã QR, đổi định dạng ảnh, tải video & âm thanh social, xóa nền ảnh AI.">
+
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS Stylesheets -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- GSAP & Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <!-- QRCode Client Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body class="dark-theme">
+
+    <!-- Glowing Background Mesh Elements -->
+    <div class="bg-blur-orb orb-1"></div>
+    <div class="bg-blur-orb orb-2"></div>
+    <div class="bg-blur-orb orb-3"></div>
+    <div class="bg-grid-pattern"></div>
+
+    <!-- App Container -->
+    <div class="app-layout">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>Tool<span>Hub</span></h2>
+                    <span class="badge-tag">v1.0 Go + JS</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-section-title">Chuyển Đổi Tài Liệu</div>
+                <button class="nav-item active" data-tab="tab-pdf-word">
+                    <i data-lucide="file-text"></i>
+                    <span>PDF ➜ Word</span>
+                </button>
+                <button class="nav-item" data-tab="tab-pdf-pptx">
+                    <i data-lucide="presentation"></i>
+                    <span>PDF ➜ PPTX</span>
+                </button>
+
+                <div class="nav-section-title">Tiện Ích Link & QR</div>
+                <button class="nav-item" data-tab="tab-qr-code">
+                    <i data-lucide="qr-code"></i>
+                    <span>Tạo Mã QR</span>
+                </button>
+                <button class="nav-item" data-tab="tab-url-shortener">
+                    <i data-lucide="link-2"></i>
+                    <span>Rút Gọn Link</span>
+                </button>
+
+                <div class="nav-section-title">Xử Lý Hình Ảnh</div>
+                <button class="nav-item" data-tab="tab-image-convert">
+                    <i data-lucide="image"></i>
+                    <span>Đổi Định Dạng Ảnh</span>
+                </button>
+                <button class="nav-item" data-tab="tab-bg-remove">
+                    <i data-lucide="scissors"></i>
+                    <span>Xóa Nền Ảnh (AI)</span>
+                </button>
+
+                <div class="nav-section-title">Tải Media Social</div>
+                <button class="nav-item" data-tab="tab-video-download">
+                    <i data-lucide="video"></i>
+                    <span>Tải Video Link</span>
+                </button>
+                <button class="nav-item" data-tab="tab-audio-download">
+                    <i data-lucide="music"></i>
+                    <span>Tải Âm Thanh Link</span>
+                </button>
+                <button class="nav-item" data-tab="tab-image-download">
+                    <i data-lucide="images"></i>
+                    <span>Tải Ảnh MXH (FB/IG)</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="server-status">
+                    <span class="status-dot online"></span>
+                    <span class="status-text">Backend Golang: Ready</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- Top Navbar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="mobile-toggle" id="mobile-toggle">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <h1 class="page-title" id="page-title">PDF sang Word (.docx)</h1>
+                </div>
+
+                <div class="header-right">
+                    <div class="quick-stats">
+                        <div class="stat-pill">
+                            <i data-lucide="zap"></i>
+                            <span>Tốc độ: Sub-second</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tool Container Panes -->
+            <div class="content-body">
+
+                <!-- 1. TOOL: PDF TO WORD -->
+                <section class="tool-pane active" id="tab-pdf-word">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon pdf-theme">
+                                <i data-lucide="file-text"></i>
+                            </div>
+                            <div>
+                                <h3>Chuyển đổi PDF sang file Word (.docx)</h3>
+                                <p>Giữ nguyên định dạng font chữ, bảng biểu và hình ảnh từ file PDF của bạn.</p>
+                            </div>
+                        </div>
+
+                        <div class="upload-zone" id="dropzone-pdf-word">
+                            <input type="file" id="input-pdf-word" accept=".pdf" class="file-input">
+                            <div class="upload-content">
+                                <div class="upload-icon-wrapper">
+                                    <i data-lucide="upload-cloud"></i>
+                                </div>
+                                <h4>Kéo & thả file PDF vào đây</h4>
+                                <p>hoặc <span>chọn file từ máy tính</span></p>
+                                <span class="file-limit">Hỗ trợ file PDF lên đến 50MB</span>
+                            </div>
+                            <div class="file-preview-card hidden" id="preview-pdf-word">
+                                <div class="file-info">
+                                    <i data-lucide="file-check" class="text-success"></i>
+                                    <div>
+                                        <div class="file-name" id="filename-pdf-word">document.pdf</div>
+                                        <div class="file-size" id="filesize-pdf-word">2.4 MB</div>
+                                    </div>
+                                </div>
+                                <button class="btn-remove" id="remove-pdf-word"><i data-lucide="x"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn-primary" id="btn-convert-pdf-word" disabled>
+                                <i data-lucide="refresh-cw"></i>
+                                <span>Chuyển Sang Word Ngay</span>
+                            </button>
+                        </div>
+
+                        <!-- Progress Bar & Result -->
+                        <div class="progress-box hidden" id="progress-pdf-word">
+                            <div class="progress-info">
+                                <span class="progress-status" id="status-pdf-word">Đang chuyển đổi văn bản...</span>
+                                <span class="progress-percent" id="percent-pdf-word">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="bar-pdf-word" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="result-box hidden" id="result-pdf-word">
+                            <div class="success-banner">
+                                <i data-lucide="check-circle-2"></i>
+                                <div>
+                                    <h4>Chuyển đổi hoàn tất thành công!</h4>
+                                    <p>File Word của bạn đã sẵn sàng để tải xuống.</p>
+                                </div>
+                            </div>
+                            <a href="#" class="btn-download" id="download-pdf-word" download>
+                                <i data-lucide="download"></i> Tải File Word (.docx)
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. TOOL: PDF TO PPTX -->
+                <section class="tool-pane" id="tab-pdf-pptx">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon ppt-theme">
+                                <i data-lucide="presentation"></i>
+                            </div>
+                            <div>
+                                <h3>Chuyển đổi PDF sang PowerPoint (.pptx)</h3>
+                                <p>Chuyển từng trang PDF thành slide thuyết trình PowerPoint sắc nét.</p>
+                            </div>
+                        </div>
+
+                        <div class="upload-zone" id="dropzone-pdf-pptx">
+                            <input type="file" id="input-pdf-pptx" accept=".pdf" class="file-input">
+                            <div class="upload-content">
+                                <div class="upload-icon-wrapper">
+                                    <i data-lucide="upload-cloud"></i>
+                                </div>
+                                <h4>Kéo & thả file PDF bài thuyết trình</h4>
+                                <p>hoặc <span>chọn file PDF từ máy</span></p>
+                                <span class="file-limit">Tốc độ xuất file PowerPoint tối ưu</span>
+                            </div>
+                            <div class="file-preview-card hidden" id="preview-pdf-pptx">
+                                <div class="file-info">
+                                    <i data-lucide="file-check" class="text-success"></i>
+                                    <div>
+                                        <div class="file-name" id="filename-pdf-pptx">slides.pdf</div>
+                                        <div class="file-size" id="filesize-pdf-pptx">5.1 MB</div>
+                                    </div>
+                                </div>
+                                <button class="btn-remove" id="remove-pdf-pptx"><i data-lucide="x"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn-primary" id="btn-convert-pdf-pptx" disabled>
+                                <i data-lucide="sparkles"></i>
+                                <span>Tạo File PPTX Thuyết Trình</span>
+                            </button>
+                        </div>
+
+                        <div class="progress-box hidden" id="progress-pdf-pptx">
+                            <div class="progress-info">
+                                <span class="progress-status" id="status-pdf-pptx">Đang trích xuất slide...</span>
+                                <span class="progress-percent" id="percent-pdf-pptx">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="bar-pdf-pptx" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="result-box hidden" id="result-pdf-pptx">
+                            <div class="success-banner">
+                                <i data-lucide="check-circle-2"></i>
+                                <div>
+                                    <h4>Tạo Slide PowerPoint thành công!</h4>
+                                    <p>File PowerPoint (.pptx) đã được đóng gói hoàn chỉnh.</p>
+                                </div>
+                            </div>
+                            <a href="#" class="btn-download" id="download-pdf-pptx" download>
+                                <i data-lucide="download"></i> Tải File PowerPoint (.pptx)
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. TOOL: QR CODE GENERATOR -->
+                <section class="tool-pane" id="tab-qr-code">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon qr-theme">
+                                <i data-lucide="qr-code"></i>
+                            </div>
+                            <div>
+                                <h3>Tạo Mã QR Code Tùy Chỉnh</h3>
+                                <p>Tạo mã QR từ đường link URL, đoạn văn bản, Wi-Fi hoặc số điện thoại.</p>
+                            </div>
+                        </div>
+
+                        <div class="qr-layout">
+                            <div class="qr-inputs">
+                                <div class="form-group">
+                                    <label for="qr-content-input">Nội dung hoặc Đường Link (URL)</label>
+                                    <div class="input-with-icon">
+                                        <i data-lucide="globe"></i>
+                                        <input type="text" id="qr-content-input"
+                                            placeholder="https://facebook.com/trang-web-cua-ban"
+                                            value="https://google.com">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="qr-fg-color">Màu mã QR</label>
+                                        <input type="color" id="qr-fg-color" value="#00f2fe" class="color-picker">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="qr-bg-color">Màu nền</label>
+                                        <input type="color" id="qr-bg-color" value="#0b1120" class="color-picker">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="qr-size">Kích thước (px)</label>
+                                        <select id="qr-size" class="select-input">
+                                            <option value="200">200 x 200</option>
+                                            <option value="300" selected>300 x 300</option>
+                                            <option value="500">500 x 500</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button class="btn-primary" id="btn-generate-qr">
+                                    <i data-lucide="wand-2"></i>
+                                    <span>Tạo Mã QR Ngay</span>
+                                </button>
+                            </div>
+
+                            <div class="qr-preview-box">
+                                <div class="qr-canvas-wrapper" id="qr-canvas-container">
+                                    <div id="qr-output"></div>
+                                </div>
+                                <div class="qr-actions">
+                                    <button class="btn-secondary" id="btn-download-qr-png">
+                                        <i data-lucide="download"></i> Tải Mã PNG
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. TOOL: URL SHORTENER -->
+                <section class="tool-pane" id="tab-url-shortener">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon link-theme">
+                                <i data-lucide="link-2"></i>
+                            </div>
+                            <div>
+                                <h3>Rút Gọn Đường Link Rườm Rà</h3>
+                                <p>Biến các đường link dài phức tạp thành đường dẫn ngắn gọn, dễ nhớ & theo dõi lượt
+                                    click.</p>
+                            </div>
+                        </div>
+
+                        <div class="shortener-box">
+                            <div class="form-group">
+                                <label for="short-original-url">Đường Link Gốc Cần Rút Gọn</label>
+                                <div class="input-with-icon">
+                                    <i data-lucide="link"></i>
+                                    <input type="url" id="short-original-url"
+                                        placeholder="https://example.com/bai-viet-rat-dai-va-phuc-tap-123456789">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="short-custom-alias">Custom Alias (Tùy chọn)</label>
+                                    <div class="input-with-icon">
+                                        <i data-lucide="at-sign"></i>
+                                        <input type="text" id="short-custom-alias" placeholder="khuyen-mai-2026">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn-primary" id="btn-create-short-link">
+                                <i data-lucide="scissors"></i>
+                                <span>Rút Gọn Link Cấp Tốc</span>
+                            </button>
+                        </div>
+
+                        <div class="short-result-card hidden" id="short-result-card">
+                            <div class="result-header">
+                                <i data-lucide="check-circle" class="text-success"></i>
+                                <span>Link Rút Gọn Của Bạn Sẵn Sàng!</span>
+                            </div>
+                            <div class="short-link-display">
+                                <input type="text" id="short-link-output" readonly
+                                    value="http://localhost:8080/s/x9K2a">
+                                <button class="btn-copy" id="btn-copy-short-link">
+                                    <i data-lucide="copy"></i>
+                                    <span>Sao chép</span>
+                                </button>
+                            </div>
+                            <div class="short-analytics">
+                                <div class="stat-item">
+                                    <span class="label">Lượt truy cập</span>
+                                    <span class="val" id="short-click-count">0 clicks</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="label">Trạng thái Redis Cache</span>
+                                    <span class="val text-success">HIT (Sub-5ms)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. TOOL: IMAGE FORMAT CONVERTER -->
+                <section class="tool-pane" id="tab-image-convert">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon img-theme">
+                                <i data-lucide="image"></i>
+                            </div>
+                            <div>
+                                <h3>Đổi Định Dạng Hình Ảnh (Convert Image)</h3>
+                                <p>Chuyển đổi hình ảnh giữa WEBP, PNG, JPG, GIF không làm giảm chất lượng.</p>
+                            </div>
+                        </div>
+
+                        <div class="upload-zone" id="dropzone-image">
+                            <input type="file" id="input-image" accept="image/*" class="file-input">
+                            <div class="upload-content">
+                                <div class="upload-icon-wrapper">
+                                    <i data-lucide="image-plus"></i>
+                                </div>
+                                <h4>Kéo & thả bức ảnh của bạn vào đây</h4>
+                                <p>hoặc <span>chọn file ảnh từ thư viện</span></p>
+                                <span class="file-limit">Hỗ trợ JPG, PNG, WEBP, GIF, BMP</span>
+                            </div>
+                            <div class="file-preview-card hidden" id="preview-image">
+                                <div class="file-info">
+                                    <img id="img-thumb-preview" src="" alt="preview" class="img-thumb">
+                                    <div>
+                                        <div class="file-name" id="filename-image">photo.jpg</div>
+                                        <div class="file-size" id="filesize-image">1.8 MB</div>
+                                    </div>
+                                </div>
+                                <button class="btn-remove" id="remove-image"><i data-lucide="x"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="format-selector-row">
+                            <label>Chọn định dạng đầu ra:</label>
+                            <div class="radio-pill-group">
+                                <label class="radio-pill">
+                                    <input type="radio" name="target-format" value="webp" checked>
+                                    <span>WEBP (Siêu nhẹ)</span>
+                                </label>
+                                <label class="radio-pill">
+                                    <input type="radio" name="target-format" value="png">
+                                    <span>PNG (Trong suốt)</span>
+                                </label>
+                                <label class="radio-pill">
+                                    <input type="radio" name="target-format" value="jpg">
+                                    <span>JPG (Chuẩn)</span>
+                                </label>
+                                <label class="radio-pill">
+                                    <input type="radio" name="target-format" value="gif">
+                                    <span>GIF</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn-primary" id="btn-convert-image" disabled>
+                                <i data-lucide="refresh-cw"></i>
+                                <span>Chuyển Đổi Định Dạng Ảnh</span>
+                            </button>
+                        </div>
+
+                        <div class="result-box hidden" id="result-image">
+                            <div class="success-banner">
+                                <i data-lucide="check-circle-2"></i>
+                                <div>
+                                    <h4>Đổi định dạng ảnh thành công!</h4>
+                                    <p id="image-opt-saving">Dung lượng tối ưu xuất sắc.</p>
+                                </div>
+                            </div>
+                            <a href="#" class="btn-download" id="download-image" download>
+                                <i data-lucide="download"></i> Tải Ảnh Đã Chuyển Đổi
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. TOOL: AI BACKGROUND REMOVER -->
+                <section class="tool-pane" id="tab-bg-remove">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon bg-theme">
+                                <i data-lucide="scissors"></i>
+                            </div>
+                            <div>
+                                <h3>Xóa Nền Ảnh Bằng AI (Background Remover)</h3>
+                                <p>Tách nền vật thể, chân dung sản phẩm lấy file PNG trong suốt chuẩn sắc nét.</p>
+                            </div>
+                        </div>
+
+                        <div class="upload-zone" id="dropzone-bg">
+                            <input type="file" id="input-bg" accept="image/*" class="file-input">
+                            <div class="upload-content">
+                                <div class="upload-icon-wrapper">
+                                    <i data-lucide="sparkle"></i>
+                                </div>
+                                <h4>Kéo & thả ảnh cần xóa nền</h4>
+                                <p>hoặc <span>tải ảnh từ máy tính</span></p>
+                                <span class="file-limit">AI tự động nhận diện người, đồ vật, thương hiệu</span>
+                            </div>
+                            <div class="file-preview-card hidden" id="preview-bg">
+                                <div class="file-info">
+                                    <img id="bg-thumb-preview" src="" alt="preview" class="img-thumb">
+                                    <div>
+                                        <div class="file-name" id="filename-bg">model.png</div>
+                                        <div class="file-size" id="filesize-bg">3.2 MB</div>
+                                    </div>
+                                </div>
+                                <button class="btn-remove" id="remove-bg"><i data-lucide="x"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="action-bar">
+                            <button class="btn-primary" id="btn-process-bg" disabled>
+                                <i data-lucide="wand-2"></i>
+                                <span>Xóa Nền Ảnh Bằng AI Ngay</span>
+                            </button>
+                        </div>
+
+                        <!-- Progress Bar for BG Remover -->
+                        <div id="bg-progress-container" class="hidden"
+                            style="margin-top: 1.5rem; animation: fadeIn 0.3s ease;">
+                            <div
+                                style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                                <span id="bg-progress-text">Đang phân tích...</span>
+                                <span id="bg-progress-percent"
+                                    style="font-weight: bold; color: var(--text-light);">0%</span>
+                            </div>
+                            <div
+                                style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">
+                                <div id="bg-progress-fill"
+                                    style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary-color), #00d2ff); border-radius: 4px; transition: width 0.3s ease, background 0.3s ease;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Side by Side Preview Result -->
+                        <div class="bg-comparison-box hidden" id="result-bg-box">
+                            <div class="bg-preview-item">
+                                <h5>Ảnh Trong Suốt Kết Quả (PNG)</h5>
+                                <div class="transparent-checkboard">
+                                    <img id="bg-result-img" src="" alt="Result">
+                                </div>
+                            </div>
+                            <div class="download-container">
+                                <a href="#" class="btn-download" id="download-bg-img" download="transparent_bg.png">
+                                    <i data-lucide="download"></i> Tải Ảnh HD Trong Suốt (.PNG)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. TOOL: VIDEO DOWNLOADER -->
+                <section class="tool-pane" id="tab-video-download">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon video-theme">
+                                <i data-lucide="video"></i>
+                            </div>
+                            <div>
+                                <h3>Tải Video từ Link (YouTube, TikTok, Facebook, Instagram)</h3>
+                                <p>Tải video độ phân giải cao 1080p, 4K không dính watermark từ các nền tảng social.</p>
+                            </div>
+                        </div>
+
+                        <div class="media-downloader-box">
+                            <div class="form-group">
+                                <label for="video-url-input">Nhập Link Video Social</label>
+                                <div class="input-with-icon">
+                                    <i data-lucide="play-circle"></i>
+                                    <input type="url" id="video-url-input"
+                                        placeholder="Dán link TikTok, YouTube, Facebook reel hoặc Instagram...">
+                                </div>
+                            </div>
+
+                            <div class="supported-platforms">
+                                <span class="platform-chip"><i data-lucide="youtube"></i> YouTube</span>
+                                <span class="platform-chip"><i data-lucide="music-2"></i> TikTok (No WM)</span>
+                                <span class="platform-chip"><i data-lucide="facebook"></i> Facebook</span>
+                                <span class="platform-chip"><i data-lucide="instagram"></i> Instagram</span>
+                            </div>
+
+                            <button class="btn-primary" id="btn-fetch-video">
+                                <i data-lucide="search"></i>
+                                <span>Phân Tích & Phân Giải Video</span>
+                            </button>
+
+                            <!-- Progress Bar for Analysis & Download -->
+                            <div id="video-progress-container" class="hidden"
+                                style="margin-top: 1.5rem; animation: fadeIn 0.3s ease;">
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                                    <span id="video-progress-text">Đang phân tích...</span>
+                                    <span id="video-progress-percent"
+                                        style="font-weight: bold; color: var(--text-light);">0%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">
+                                    <div id="video-progress-fill"
+                                        style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary-color), #00d2ff); border-radius: 4px; transition: width 0.3s ease, background 0.3s ease;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Info Result -->
+                        <div class="media-result-card hidden" id="video-result-card">
+                            <div class="media-details">
+                                <div class="media-thumb-box">
+                                    <img id="video-thumb"
+                                        src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500"
+                                        alt="video thumbnail">
+                                    <span class="duration-badge" id="video-duration">03:45</span>
+                                </div>
+                                <div class="media-meta">
+                                    <h4 id="video-title">Video Title Demo Stream</h4>
+                                    <p id="video-uploader">Kênh: Official Channel</p>
+                                    <div class="quality-download-options" id="video-download-options">
+                                        <!-- Dynamic buttons will be rendered here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. TOOL: AUDIO DOWNLOADER -->
+                <section class="tool-pane" id="tab-audio-download">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon audio-theme">
+                                <i data-lucide="music"></i>
+                            </div>
+                            <div>
+                                <h3>Tải Âm Thanh / MP3 từ Link Social</h3>
+                                <p>Tách nhạc nền, podcast, âm thanh chất lượng 320kbps từ TikTok, YouTube, FB.</p>
+                            </div>
+                        </div>
+
+                        <div class="media-downloader-box">
+                            <div class="form-group">
+                                <label for="audio-url-input">Nhập Link Chứa Âm Thanh</label>
+                                <div class="input-with-icon">
+                                    <i data-lucide="disc"></i>
+                                    <input type="url" id="audio-url-input"
+                                        placeholder="Dán link bài hát YouTube, nhạc TikTok trend...">
+                                </div>
+                            </div>
+
+                            <button class="btn-primary" id="btn-fetch-audio">
+                                <i data-lucide="headphones"></i>
+                                <span>Trích Xuất Âm Thanh Ngay</span>
+                            </button>
+
+                            <!-- Progress Bar for Audio -->
+                            <div id="audio-progress-container" class="hidden"
+                                style="margin-top: 1.5rem; animation: fadeIn 0.3s ease;">
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                                    <span id="audio-progress-text">Đang trích xuất...</span>
+                                    <span id="audio-progress-percent"
+                                        style="font-weight: bold; color: var(--text-light);">0%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">
+                                    <div id="audio-progress-fill"
+                                        style="width: 0%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); border-radius: 4px; transition: width 0.3s ease, background 0.3s ease;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audio Info Result -->
+                        <div class="media-result-card hidden" id="audio-result-card">
+                            <div class="media-details">
+                                <div class="media-thumb-box audio-style">
+                                    <i data-lucide="music-3"></i>
+                                </div>
+                                <div class="media-meta">
+                                    <h4 id="audio-title">Background Sound Trend MP3</h4>
+                                    <p id="audio-bitrate">Bitrate: 320 kbps (Audio HQ)</p>
+                                    <div class="quality-download-options">
+                                        <a href="#" class="btn-download-sm text-gold" id="dl-audio-mp3">
+                                            <i data-lucide="download-cloud"></i> Tải File MP3 (320kbps)
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 9. TOOL: IMAGE DOWNLOADER -->
+                <section class="tool-pane" id="tab-image-download">
+                    <div class="tool-card glass-panel">
+                        <div class="card-header">
+                            <div class="card-icon img-theme"
+                                style="background: linear-gradient(135deg, #e1306c, #833ab4);">
+                                <i data-lucide="images"></i>
+                            </div>
+                            <div>
+                                <h3>Tải Lưới Hình Ảnh (Facebook, Instagram)</h3>
+                                <p>Tải toàn bộ Album ảnh độ phân giải gốc. Lưu ý: Chỉ hỗ trợ các bài viết ở chế độ công
+                                    khai.</p>
+                            </div>
+                        </div>
+
+                        <div class="media-downloader-box">
+                            <div class="form-group">
+                                <label for="image-url-input">Nhập Link Bài Viết (Album / Hình Ảnh)</label>
+                                <div class="input-with-icon">
+                                    <i data-lucide="instagram"></i>
+                                    <input type="url" id="image-url-input"
+                                        placeholder="Dán link bài viết Facebook hoặc Instagram...">
+                                </div>
+                            </div>
+
+                            <button class="btn-primary" id="btn-fetch-image">
+                                <i data-lucide="search"></i>
+                                <span>Trích Xuất Hình Ảnh</span>
+                            </button>
+
+                            <!-- Progress Bar for Image Fetch -->
+                            <div id="image-progress-container" class="hidden"
+                                style="margin-top: 1.5rem; animation: fadeIn 0.3s ease;">
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                                    <span id="image-progress-text">Đang phân tích dữ liệu mxh...</span>
+                                    <span id="image-progress-percent"
+                                        style="font-weight: bold; color: var(--text-light);">0%</span>
+                                </div>
+                                <div
+                                    style="width: 100%; height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">
+                                    <div id="image-progress-fill"
+                                        style="width: 0%; height: 100%; background: linear-gradient(90deg, #e1306c, #f56040); border-radius: 4px; transition: width 0.3s ease, background 0.3s ease;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Info Result -->
+                        <div class="media-result-card hidden" id="image-result-card">
+                            <div class="media-meta" style="margin-bottom: 1.5rem;">
+                                <h4 id="image-title">Tên Bài Viết</h4>
+                                <p id="image-uploader">Kênh / Tác giả</p>
+                            </div>
+
+                            <!-- Lưới hình ảnh -->
+                            <div id="image-grid-container"
+                                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem;">
+                                <!-- Dynamic grid items -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- App Scripts -->
+    <script src="assets/js/gsap-init.js"></script>
+    <script src="assets/js/modules/pdf.js"></script>
+    <script src="assets/js/modules/qr.js"></script>
+    <script src="assets/js/modules/shortener.js"></script>
+    <script src="assets/js/modules/image.js"></script>
+    <script src="assets/js/modules/bgremover.js"></script>
+    <script src="assets/js/modules/downloader.js"></script>
+    <script src="assets/js/modules/imagedownloader.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>

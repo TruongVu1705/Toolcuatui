@@ -1,0 +1,16 @@
+[build]
+  publish = "frontend"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# Dành cho Option 2 (Netlify + Render): 
+# Bạn có thể bỏ comment đoạn dưới đây và thay [URL_RENDER_CUA_BAN] thành tên miền Máy chủ của bạn trên Render
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://[URL_RENDER_CUA_BAN]/api/:splat"
+#   status = 200
+#   force = true

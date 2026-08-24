@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@bochilteam/scraper": "^5.0.1",
+    "docx": "^9.7.1",
+    "fb-downloader-scrapper": "^3.0.1",
+    "instagram-url-direct": "^2.0.7",
+    "jszip": "^3.10.1",
+    "pdf-parse": "^2.4.5",
+    "pptxgenjs": "^4.0.1",
+    "puppeteer": "^25.8.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
