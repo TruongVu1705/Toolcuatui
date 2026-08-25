@@ -79,34 +79,54 @@ const server = http.createServer(async (req, res) => {
             debugInfo.ytdlpVersion = 'ERROR: ' + e.message;
         }
 
-        // Test 1: Try to fetch video title with flexible format
+        // Check PO Token server
+        try {
+            const http2 = require('http');
+            debugInfo.potServerReachable = await new Promise((resolve) => {
+                const req2 = http2.get('http://127.0.0.1:4416/ping', { timeout: 3000 }, (r) => {
+                    let d = '';
+                    r.on('data', c => d += c);
+                    r.on('end', () => resolve('OK: ' + d));
+                });
+                req2.on('error', (e) => resolve('UNREACHABLE: ' + e.message));
+                req2.on('timeout', () => { req2.destroy(); resolve('TIMEOUT'); });
+            });
+        } catch (e) {
+            debugInfo.potServerReachable = 'ERROR: ' + e.message;
+        }
+
+        // Check bgutil build exists
+        debugInfo.bgutilBuildExists = fs.existsSync('/opt/bgutil/server/build/main.js');
+        debugInfo.bgutilServerDir = fs.existsSync('/opt/bgutil/server');
+
+        // Check yt-dlp plugins (verbose)
         try {
             const { execSync } = require('child_process');
-            let testArgs = `${ytdlpPath} --no-download --js-runtimes node --print "%(title)s"`;
+            const verboseOut = execSync(`${ytdlpPath} -v --print "" "https://www.youtube.com/watch?v=dQw4w9WgXcQ" 2>&1 | head -30`, 
+                { timeout: 10000, encoding: 'utf-8', shell: '/bin/bash' });
+            const potLines = verboseOut.split('\n').filter(l => l.includes('pot') || l.includes('plugin') || l.includes('POT') || l.includes('bgutil') || l.includes('Provider'));
+            debugInfo.pluginInfo = potLines.length > 0 ? potLines.join('\n') : 'No PO Token plugin detected';
+        } catch (e) {
+            debugInfo.pluginInfo = e.stderr ? e.stderr.toString().substring(0, 300) : e.message;
+        }
+
+        // Test: Try to fetch video title
+        try {
+            const { execSync } = require('child_process');
+            let testArgs = `${ytdlpPath} -v --no-download --js-runtimes node --print "%(title)s"`;
             if (fs.existsSync(cookiePath)) {
                 testArgs += ` --cookies "${cookiePath}"`;
             }
-            testArgs += ` "https://www.youtube.com/watch?v=iFNTUO6-Pbw"`;
-            const result = execSync(testArgs, { timeout: 30000, encoding: 'utf-8' });
-            debugInfo.testResult = result.trim();
-            debugInfo.testStatus = 'SUCCESS';
+            testArgs += ` "https://www.youtube.com/watch?v=iFNTUO6-Pbw" 2>&1`;
+            const result = execSync(testArgs, { timeout: 45000, encoding: 'utf-8', shell: '/bin/bash' });
+            const lines = result.split('\n');
+            const potDebug = lines.filter(l => l.includes('pot') || l.includes('POT') || l.includes('bgutil') || l.includes('Provider') || l.includes('token'));
+            const lastLines = lines.slice(-5);
+            debugInfo.testResult = [...potDebug, '---', ...lastLines].join('\n');
+            debugInfo.testStatus = lines.some(l => !l.startsWith('[') && !l.startsWith('WARNING') && !l.startsWith('ERROR') && l.trim().length > 0) ? 'SUCCESS' : 'FAILED';
         } catch (e) {
-            debugInfo.testResult = e.stderr ? e.stderr.toString().substring(0, 500) : e.message;
+            debugInfo.testResult = e.stdout ? e.stdout.toString().substring(0, 800) : (e.stderr ? e.stderr.toString().substring(0, 800) : e.message);
             debugInfo.testStatus = 'FAILED';
-        }
-
-        // Test 2: List available formats
-        try {
-            const { execSync } = require('child_process');
-            let fmtArgs = `${ytdlpPath} --js-runtimes node --list-formats`;
-            if (fs.existsSync(cookiePath)) {
-                fmtArgs += ` --cookies "${cookiePath}"`;
-            }
-            fmtArgs += ` "https://www.youtube.com/watch?v=iFNTUO6-Pbw"`;
-            const result = execSync(fmtArgs, { timeout: 30000, encoding: 'utf-8' });
-            debugInfo.availableFormats = result.trim().split('\n').slice(-15).join('\n');
-        } catch (e) {
-            debugInfo.availableFormats = e.stderr ? e.stderr.toString().substring(0, 500) : e.message;
         }
 
         res.writeHead(200, { 'Content-Type': 'application/json' });
