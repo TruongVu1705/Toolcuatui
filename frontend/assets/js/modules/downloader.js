@@ -114,7 +114,9 @@ function initDownloaderModule() {
 
                         btn.addEventListener('click', async (e) => {
                             e.preventDefault();
-                            const specificDownloadUrl = `${videoData.download_url}&resolution=${res}`;
+                            const specificDownloadUrl = videoData.direct_download 
+                                ? videoData.download_url 
+                                : `${videoData.download_url}&resolution=${res}`;
 
                             const originalHTML = btn.innerHTML;
                             btn.innerHTML = `<i data-lucide="loader" class="spin"></i> Đang tải ${res}p...`;
