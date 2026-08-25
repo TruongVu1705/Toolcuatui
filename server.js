@@ -54,6 +54,53 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // DEBUG endpoint - Tạm thời để chẩn đoán Render
+    if (pathname === '/api/v1/debug' && req.method === 'GET') {
+        const cookiePath = path.join(__dirname, 'backend', 'cookies.txt');
+        const isWin = process.platform === 'win32';
+        const ytdlpPath = isWin ? path.join(__dirname, 'backend', 'yt-dlp.exe') : 'yt-dlp';
+        
+        let debugInfo = {
+            platform: process.platform,
+            __dirname: __dirname,
+            cookiePath: cookiePath,
+            cookieExists: fs.existsSync(cookiePath),
+            cookieSize: fs.existsSync(cookiePath) ? fs.statSync(cookiePath).size : 0,
+            ytdlpPath: ytdlpPath,
+            nodeVersion: process.version,
+            timestamp: new Date().toISOString()
+        };
+
+        // Check yt-dlp version
+        try {
+            const { execSync } = require('child_process');
+            debugInfo.ytdlpVersion = execSync(`${ytdlpPath} --version`, { timeout: 5000 }).toString().trim();
+        } catch (e) {
+            debugInfo.ytdlpVersion = 'ERROR: ' + e.message;
+        }
+
+        // Quick test: try to fetch video title
+        try {
+            const { execSync } = require('child_process');
+            let testArgs = `${ytdlpPath} --no-warnings --no-download --js-runtimes node --extractor-args "youtube:player_skip=webpage;player_client=web_creator,default" --print "%(title)s"`;
+            if (fs.existsSync(cookiePath)) {
+                testArgs += ` --cookies "${cookiePath}"`;
+            }
+            testArgs += ` "https://www.youtube.com/watch?v=iFNTUO6-Pbw"`;
+            const result = execSync(testArgs, { timeout: 30000, encoding: 'utf-8' });
+            debugInfo.testResult = result.trim();
+            debugInfo.testStatus = 'SUCCESS';
+        } catch (e) {
+            debugInfo.testResult = e.stderr ? e.stderr.toString().substring(0, 500) : e.message;
+            debugInfo.testStatus = 'FAILED';
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(debugInfo, null, 2));
+        return;
+    }
+
+
     // 1 & 2. PDF to DOCX & PPTX Converters
     if ((pathname === '/api/v1/pdf/convert-word' || pathname === '/api/v1/pdf/convert-pptx') && req.method === 'POST') {
         const chunks = [];
