@@ -222,12 +222,17 @@ const server = http.createServer(async (req, res) => {
                 const isWin = process.platform === 'win32';
                 const ytdlpPath = isWin ? path.join(__dirname, 'backend', 'yt-dlp.exe') : 'yt-dlp';
                 
-                const ytDlp = spawn(ytdlpPath, [
+                let ytDlpBaseArgs = [
                     '--no-warnings', '--no-download',
                     '--extractor-args', 'youtube:player_client=android,ios',
-                    '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j',
-                    data.url
-                ], { stdio: ['ignore', 'pipe', 'pipe'] });
+                    '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j'
+                ];
+                if (fs.existsSync(path.join(__dirname, 'backend', 'cookies.txt'))) {
+                    ytDlpBaseArgs.push('--cookies', path.join(__dirname, 'backend', 'cookies.txt'));
+                }
+                ytDlpBaseArgs.push(data.url);
+
+                const ytDlp = spawn(ytdlpPath, ytDlpBaseArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
 
                 let output = '';
                 let stderr = '';
@@ -357,10 +362,12 @@ const server = http.createServer(async (req, res) => {
             '-f', `bestvideo[ext=mp4][height<=${resolution}]+bestaudio[ext=m4a]/best[ext=mp4][height<=${resolution}]/best`,
             '--merge-output-format', 'mp4',
             '--no-warnings',
-            '--retries', '5',
-            '-o', tmpFile,
-            url
+            '--retries', '5'
         ];
+        if (fs.existsSync(path.join(__dirname, 'backend', 'cookies.txt'))) {
+            ytDlpArgs.push('--cookies', path.join(__dirname, 'backend', 'cookies.txt'));
+        }
+        ytDlpArgs.push('-o', tmpFile, url);
 
         if (isFacebook) {
             // Ưu tiên bản pre-muxed mp4 H264 (thường có mã format là hd hoặc sd) để tránh AV1 DASH và không phải re-encode gây kẹt tiến trình 40%
@@ -370,10 +377,12 @@ const server = http.createServer(async (req, res) => {
                 '-f', `hd/sd/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best`,
                 '--merge-output-format', 'mp4',
                 '--no-warnings',
-                '--retries', '5',
-                '-o', tmpFile,
-                url
+                '--retries', '5'
             ];
+            if (fs.existsSync(path.join(__dirname, 'backend', 'cookies.txt'))) {
+                ytDlpArgs.push('--cookies', path.join(__dirname, 'backend', 'cookies.txt'));
+            }
+            ytDlpArgs.push('-o', tmpFile, url);
         }
 
         const ytDlp = spawn(ytdlpPath, ytDlpArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
