@@ -82,7 +82,7 @@ const server = http.createServer(async (req, res) => {
         // Test 1: Try to fetch video title with flexible format
         try {
             const { execSync } = require('child_process');
-            let testArgs = `${ytdlpPath} --no-warnings --no-download --js-runtimes node --extractor-args "youtube:player_client=android" -f best --print "%(title)s"`;
+            let testArgs = `${ytdlpPath} --no-download --js-runtimes node --print "%(title)s"`;
             if (fs.existsSync(cookiePath)) {
                 testArgs += ` --cookies "${cookiePath}"`;
             }
@@ -98,7 +98,7 @@ const server = http.createServer(async (req, res) => {
         // Test 2: List available formats
         try {
             const { execSync } = require('child_process');
-            let fmtArgs = `${ytdlpPath} --no-warnings --js-runtimes node --extractor-args "youtube:player_client=android" --list-formats`;
+            let fmtArgs = `${ytdlpPath} --js-runtimes node --list-formats`;
             if (fs.existsSync(cookiePath)) {
                 fmtArgs += ` --cookies "${cookiePath}"`;
             }
@@ -287,7 +287,6 @@ const server = http.createServer(async (req, res) => {
                 let ytDlpBaseArgs = [
                     '--no-warnings', '--no-download',
                     '--js-runtimes', 'node',
-                    '--extractor-args', 'youtube:player_client=android',
                     '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j'
                 ];
                 if (fs.existsSync(path.join(__dirname, 'backend', 'cookies.txt'))) {
@@ -421,9 +420,8 @@ const server = http.createServer(async (req, res) => {
         let ytDlpArgs = [
             '--ffmpeg-location', ffmpegDir,
             '--js-runtimes', 'node',
-            '--extractor-args', 'youtube:player_client=android',
             '-S', 'vcodec:h264,res,acodec:m4a',
-            '-f', `bestvideo[height<=${resolution}]+bestaudio/best[height<=${resolution}]/best`,
+            '-f', `bestvideo[ext=mp4][height<=${resolution}]+bestaudio[ext=m4a]/best[ext=mp4][height<=${resolution}]/best`,
             '--merge-output-format', 'mp4',
             '--no-warnings',
             '--retries', '5'
@@ -438,8 +436,7 @@ const server = http.createServer(async (req, res) => {
             ytDlpArgs = [
                 '--ffmpeg-location', ffmpegDir,
                 '--js-runtimes', 'node',
-                '--extractor-args', 'youtube:player_client=android',
-                '-f', `hd/sd/bestvideo+bestaudio/best`,
+                '-f', `hd/sd/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best`,
                 '--merge-output-format', 'mp4',
                 '--no-warnings',
                 '--retries', '5'

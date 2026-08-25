@@ -1,10 +1,11 @@
 FROM node:20-bookworm-slim
 
-# Cài đặt Python, FFmpeg và các thư viện cần thiết cho Puppeteer / Rembg
+# Cài đặt Python, FFmpeg, git và các thư viện cần thiết cho Puppeteer / Rembg
 RUN apt-get update && apt-get install -y \
     python3 python3-pip \
     ffmpeg \
     wget \
+    git \
     gnupg \
     ca-certificates \
     procps \
@@ -19,9 +20,15 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
-# Cài đặt Rembg (Xóa nền ảnh), yt-dlp (Trình tải video) và Thư viện chuyển đổi PDF
-# Dùng -U (upgrade) để đảm bảo luôn tải yt-dlp phiên bản mới nhất nhằm đối phó với update của Youtube
-RUN pip3 install --no-cache-dir -U --break-system-packages https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz rembg onnxruntime pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
+# Cài đặt yt-dlp (Nightly Build) + PO Token Plugin + Rembg + PDF tools
+RUN pip3 install --no-cache-dir -U --break-system-packages \
+    https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz \
+    bgutil-ytdlp-pot-provider \
+    rembg onnxruntime pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
+
+# Clone và build PO Token Server (BotGuard bypass)
+RUN git clone --single-branch https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /opt/bgutil && \
+    cd /opt/bgutil/server && npm ci && npx tsc
 
 # Cài đặt Chrome cho Puppeteer
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -42,7 +49,11 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
 COPY . .
 
+# Make start script executable
+RUN chmod +x start.sh
+
 # Expose Port 8080 cho Render
 EXPOSE 8080
 
-CMD ["node", "server.js"]
+# Khởi động PO Token Server trước, sau đó khởi động ứng dụng chính
+CMD ["bash", "start.sh"]
