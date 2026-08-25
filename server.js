@@ -225,6 +225,7 @@ const server = http.createServer(async (req, res) => {
                 let ytDlpBaseArgs = [
                     '--no-warnings', '--no-download',
                     '--js-runtimes', 'node',
+                    '--extractor-args', 'youtube:player_skip=webpage',
                     '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j'
                 ];
                 if (fs.existsSync(path.join(__dirname, 'backend', 'cookies.txt'))) {
@@ -358,6 +359,7 @@ const server = http.createServer(async (req, res) => {
         let ytDlpArgs = [
             '--ffmpeg-location', ffmpegDir,
             '--js-runtimes', 'node',
+            '--extractor-args', 'youtube:player_skip=webpage',
             '-S', 'vcodec:h264,res,acodec:m4a',
             '-f', `bestvideo[ext=mp4][height<=${resolution}]+bestaudio[ext=m4a]/best[ext=mp4][height<=${resolution}]/best`,
             '--merge-output-format', 'mp4',
@@ -374,6 +376,7 @@ const server = http.createServer(async (req, res) => {
             ytDlpArgs = [
                 '--ffmpeg-location', ffmpegDir,
                 '--js-runtimes', 'node',
+                '--extractor-args', 'youtube:player_skip=webpage',
                 '-f', `hd/sd/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best`,
                 '--merge-output-format', 'mp4',
                 '--no-warnings',
