@@ -300,74 +300,38 @@ const server = http.createServer(async (req, res) => {
                 const data = JSON.parse(body || '{}');
                 if (!data.url) throw new Error("Missing URL");
 
-                const isSocial = data.url.includes('instagram.com') || data.url.includes('tiktok.com') || data.url.includes('twitter.com') || data.url.includes('x.com');
+                const isInstagram = data.url.includes('instagram.com');
                 
-                if (isSocial) {
-                    const https = require('https');
-                    const postJSON = (url, payload) => new Promise((resolve, reject) => {
-                        const parsedUrl = new URL(url);
-                        const options = {
-                            hostname: parsedUrl.hostname,
-                            port: parsedUrl.port || 443,
-                            path: parsedUrl.pathname,
-                            method: 'POST',
-                            headers: {
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                                'Origin': 'https://cobalt.tools',
-                                'Referer': 'https://cobalt.tools/'
-                            }
-                        };
-                        const req = https.request(options, (resp) => {
-                            let d = '';
-                            resp.on('data', chunk => d += chunk);
-                            resp.on('end', () => {
-                                try { resolve({ status: resp.statusCode, data: JSON.parse(d) }); }
-                                catch(e) { resolve({ status: resp.statusCode, data: {} }); }
-                            });
-                        });
-                        req.on('error', reject);
-                        req.write(JSON.stringify(payload));
-                        req.end();
-                    });
-
-                    const instances = [
-                        "https://cobalt.q-n-d.de/api/json",
-                        "https://cobalt-api.kwiatektv.com/api/json"
-                    ];
-                    
-                    let cobaltUrl = null;
-                    for (let inst of instances) {
-                        try {
-                            const resJson = await postJSON(inst, {
-                                url: data.url,
-                                vQuality: "1080",
-                                isAudioOnly: data.type === 'audio'
-                            });
-                            if (resJson.status === 200 && resJson.data) {
-                                if (resJson.data.url) cobaltUrl = resJson.data.url;
-                                else if (resJson.data.status === 'picker' && resJson.data.picker && resJson.data.picker.length > 0) {
-                                    cobaltUrl = resJson.data.picker[0].url;
-                                }
-                                if (cobaltUrl) break;
-                            }
-                        } catch(e) {}
-                    }
-
-                    if (cobaltUrl) {
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({
-                            title: 'Social Media Video',
-                            uploader: data.url.includes('instagram.com') ? 'Instagram' : 'Social Network',
-                            duration: '00:00',
-                            thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500',
-                            download_url: cobaltUrl,
-                            resolutions: [1080, 720, 360],
-                            direct_download: true // cờ để frontend tải trực tiếp thay vì qua backend
-                        }));
-                        return;
-                    }
+                if (isInstagram) {
+                    try {
+                        const { execSync } = require('child_process');
+                        const fetchCode = `
+                            const fd = new FormData();
+                            fd.append('q', '${data.url}');
+                            fd.append('t', 'media');
+                            fd.append('lang', 'en');
+                            fetch('https://v3.igdownloader.app/api/ajaxSearch', {
+                                method: 'POST',
+                                body: fd
+                            }).then(r => r.json()).then(j => console.log(j.data)).catch(e => console.log(''));
+                        `;
+                        const resHtml = execSync(`node -e "${fetchCode.replace(/\n/g, '')}"`, { encoding: 'utf-8', timeout: 15000 });
+                        
+                        const linkMatch = resHtml.match(/href="([^"]+)"/);
+                        if (linkMatch && linkMatch[1] && linkMatch[1].includes('http')) {
+                            res.writeHead(200, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({
+                                title: 'Instagram Video',
+                                uploader: 'Instagram',
+                                duration: '00:00',
+                                thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=500',
+                                download_url: linkMatch[1],
+                                resolutions: [1080, 720, 360],
+                                direct_download: true
+                            }));
+                            return;
+                        }
+                    } catch (e) { }
                 }
 
                 const downloadUrl = `/api/v1/media/stream${data.type === 'audio' ? '-audio' : ''}?url=${encodeURIComponent(data.url)}`;
@@ -377,6 +341,7 @@ const server = http.createServer(async (req, res) => {
                 let ytDlpBaseArgs = [
                     '--no-warnings', '--no-download',
                     '--js-runtimes', 'deno,node',
+                    '--extractor-args', 'instagram:api=graphql', // Dùng GraphQL để tránh rate limit web
                     '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j'
                 ];
                 if (fs.existsSync(path.join(__dirname, 'backend', 'cookies.txt'))) {
