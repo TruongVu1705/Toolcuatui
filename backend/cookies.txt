@@ -1,0 +1,5 @@
+# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+#
+# (Xin hãy xóa toàn bộ nội dung trong file này và dán mã Cookies bạn vừa xuất từ Extension vào đây!)
