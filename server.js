@@ -113,7 +113,7 @@ const server = http.createServer(async (req, res) => {
         // Test: Try to fetch video title
         try {
             const { execSync } = require('child_process');
-            let testArgs = `${ytdlpPath} -v --no-download --js-runtimes node --print "%(title)s"`;
+            let testArgs = `${ytdlpPath} -v --no-download --js-runtimes deno,node --print "%(title)s"`;
             if (fs.existsSync(cookiePath)) {
                 testArgs += ` --cookies "${cookiePath}"`;
             }
@@ -306,7 +306,7 @@ const server = http.createServer(async (req, res) => {
                 
                 let ytDlpBaseArgs = [
                     '--no-warnings', '--no-download',
-                    '--js-runtimes', 'node',
+                    '--js-runtimes', 'deno,node',
                     '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j'
                 ];
                 if (fs.existsSync(path.join(__dirname, 'backend', 'cookies.txt'))) {
@@ -439,7 +439,7 @@ const server = http.createServer(async (req, res) => {
 
         let ytDlpArgs = [
             '--ffmpeg-location', ffmpegDir,
-            '--js-runtimes', 'node',
+            '--js-runtimes', 'deno,node',
             '-S', 'vcodec:h264,res,acodec:m4a',
             '-f', `bestvideo[ext=mp4][height<=${resolution}]+bestaudio[ext=m4a]/best[ext=mp4][height<=${resolution}]/best`,
             '--merge-output-format', 'mp4',
@@ -455,7 +455,7 @@ const server = http.createServer(async (req, res) => {
             // Ưu tiên bản pre-muxed mp4 H264 (thường có mã format là hd hoặc sd) để tránh AV1 DASH và không phải re-encode gây kẹt tiến trình 40%
             ytDlpArgs = [
                 '--ffmpeg-location', ffmpegDir,
-                '--js-runtimes', 'node',
+                '--js-runtimes', 'deno,node',
                 '-f', `hd/sd/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best`,
                 '--merge-output-format', 'mp4',
                 '--no-warnings',

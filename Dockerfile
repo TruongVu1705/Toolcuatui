@@ -1,10 +1,11 @@
-FROM node:20-bookworm-slim
+FROM node:22-bookworm-slim
 
 # Cài đặt Python, FFmpeg, git và các thư viện cần thiết cho Puppeteer / Rembg
 RUN apt-get update && apt-get install -y \
     python3 python3-pip \
     ffmpeg \
     wget \
+    curl unzip \
     git \
     gnupg \
     ca-certificates \
@@ -20,10 +21,14 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
-# Cài đặt yt-dlp (Nightly Build) + PO Token Plugin + Rembg + PDF tools
+# Cài đặt Deno làm JS Challenge Solver cho yt-dlp
+RUN curl -fsSL https://deno.land/x/install/install.sh | sh \
+    && ln -s /root/.deno/bin/deno /usr/bin/deno
+
+# Cài đặt yt-dlp (Nightly Build) + EJS Solver + PO Token Plugin + Rembg + PDF tools
 RUN pip3 install --no-cache-dir -U --break-system-packages \
     https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz \
-    bgutil-ytdlp-pot-provider \
+    yt-dlp-ejs bgutil-ytdlp-pot-provider \
     rembg onnxruntime pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
 
 # Clone và build PO Token Server (BotGuard bypass)
