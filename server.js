@@ -220,7 +220,7 @@ const server = http.createServer(async (req, res) => {
 
                 const downloadUrl = `/api/v1/media/stream${data.type === 'audio' ? '-audio' : ''}?url=${encodeURIComponent(data.url)}`;
 
-                const invidiousInstances = ['invidious.nerdvpn.de', 'invidious.jing.rocks', 'inv.tux.pizza'];
+                const invidiousInstances = ['invidious.nerdvpn.de', 'invidious.jing.rocks', 'invidious.private.coffee', 'iv.melmac.space'];
                 const randomInstance = invidiousInstances[Math.floor(Math.random() * invidiousInstances.length)];
                 let targetUrl = data.url;
                 if (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be')) {
@@ -360,7 +360,7 @@ const server = http.createServer(async (req, res) => {
 
         let isFacebook = url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.gg');
 
-        const invidiousInstances = ['invidious.nerdvpn.de', 'invidious.jing.rocks', 'inv.tux.pizza'];
+        const invidiousInstances = ['invidious.nerdvpn.de', 'invidious.jing.rocks', 'invidious.private.coffee', 'iv.melmac.space'];
         const randomInstance = invidiousInstances[Math.floor(Math.random() * invidiousInstances.length)];
         let targetUrl = url;
         if (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be')) {
