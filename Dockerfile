@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y \
 
 # Cài đặt Rembg (Xóa nền ảnh), yt-dlp (Trình tải video) và Thư viện chuyển đổi PDF
 # Dùng -U (upgrade) để đảm bảo luôn tải yt-dlp phiên bản mới nhất nhằm đối phó với update của Youtube
-RUN pip3 install -U --break-system-packages rembg onnxruntime yt-dlp pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
+RUN pip3 install --no-cache-dir -U --break-system-packages https://github.com/yt-dlp/yt-dlp/archive/master.tar.gz rembg onnxruntime pymupdf pdf2docx pytesseract Pillow python-docx Spire.Pdf
 
 # Cài đặt Chrome cho Puppeteer
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \

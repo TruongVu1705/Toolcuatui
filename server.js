@@ -219,24 +219,14 @@ const server = http.createServer(async (req, res) => {
                 if (!data.url) throw new Error("Missing URL");
 
                 const downloadUrl = `/api/v1/media/stream${data.type === 'audio' ? '-audio' : ''}?url=${encodeURIComponent(data.url)}`;
-
-                const invidiousInstances = ['invidious.nerdvpn.de', 'invidious.jing.rocks', 'invidious.private.coffee', 'iv.melmac.space'];
-                const randomInstance = invidiousInstances[Math.floor(Math.random() * invidiousInstances.length)];
-                let targetUrl = data.url;
-                if (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be')) {
-                    const videoIdMatch = targetUrl.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
-                    if (videoIdMatch) {
-                        targetUrl = `https://${randomInstance}/watch?v=${videoIdMatch[1]}`;
-                    }
-                }
-
                 const isWin = process.platform === 'win32';
                 const ytdlpPath = isWin ? path.join(__dirname, 'backend', 'yt-dlp.exe') : 'yt-dlp';
                 
                 const ytDlp = spawn(ytdlpPath, [
                     '--no-warnings', '--no-download',
+                    '--extractor-args', 'youtube:player_client=android,ios',
                     '--print', '%(title)s|||%(uploader)s|||%(duration)s|||%(thumbnail)s|||%(formats.:.height)j',
-                    targetUrl
+                    data.url
                 ], { stdio: ['ignore', 'pipe', 'pipe'] });
 
                 let output = '';
@@ -360,37 +350,29 @@ const server = http.createServer(async (req, res) => {
 
         let isFacebook = url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.gg');
 
-        const invidiousInstances = ['invidious.nerdvpn.de', 'invidious.jing.rocks', 'invidious.private.coffee', 'iv.melmac.space'];
-        const randomInstance = invidiousInstances[Math.floor(Math.random() * invidiousInstances.length)];
-        let targetUrl = url;
-        if (targetUrl.includes('youtube.com') || targetUrl.includes('youtu.be')) {
-            const videoIdMatch = targetUrl.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/);
-            if (videoIdMatch) {
-                targetUrl = `https://${randomInstance}/watch?v=${videoIdMatch[1]}`;
-            }
-        }
-
         let ytDlpArgs = [
             '--ffmpeg-location', ffmpegDir,
+            '--extractor-args', 'youtube:player_client=android,ios',
             '-S', 'vcodec:h264,res,acodec:m4a',
             '-f', `bestvideo[ext=mp4][height<=${resolution}]+bestaudio[ext=m4a]/best[ext=mp4][height<=${resolution}]/best`,
             '--merge-output-format', 'mp4',
             '--no-warnings',
             '--retries', '5',
             '-o', tmpFile,
-            targetUrl
+            url
         ];
 
         if (isFacebook) {
             // Ưu tiên bản pre-muxed mp4 H264 (thường có mã format là hd hoặc sd) để tránh AV1 DASH và không phải re-encode gây kẹt tiến trình 40%
             ytDlpArgs = [
                 '--ffmpeg-location', ffmpegDir,
+                '--extractor-args', 'youtube:player_client=android,ios',
                 '-f', `hd/sd/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best`,
                 '--merge-output-format', 'mp4',
                 '--no-warnings',
                 '--retries', '5',
                 '-o', tmpFile,
-                targetUrl
+                url
             ];
         }
 
