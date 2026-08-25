@@ -79,10 +79,10 @@ const server = http.createServer(async (req, res) => {
             debugInfo.ytdlpVersion = 'ERROR: ' + e.message;
         }
 
-        // Quick test: try to fetch video title
+        // Test 1: Try to fetch video title with flexible format
         try {
             const { execSync } = require('child_process');
-            let testArgs = `${ytdlpPath} --no-warnings --no-download --js-runtimes node --extractor-args "youtube:player_client=android" --print "%(title)s"`;
+            let testArgs = `${ytdlpPath} --no-warnings --no-download --js-runtimes node --extractor-args "youtube:player_client=android" -f best --print "%(title)s"`;
             if (fs.existsSync(cookiePath)) {
                 testArgs += ` --cookies "${cookiePath}"`;
             }
@@ -95,10 +95,25 @@ const server = http.createServer(async (req, res) => {
             debugInfo.testStatus = 'FAILED';
         }
 
+        // Test 2: List available formats
+        try {
+            const { execSync } = require('child_process');
+            let fmtArgs = `${ytdlpPath} --no-warnings --js-runtimes node --extractor-args "youtube:player_client=android" --list-formats`;
+            if (fs.existsSync(cookiePath)) {
+                fmtArgs += ` --cookies "${cookiePath}"`;
+            }
+            fmtArgs += ` "https://www.youtube.com/watch?v=iFNTUO6-Pbw"`;
+            const result = execSync(fmtArgs, { timeout: 30000, encoding: 'utf-8' });
+            debugInfo.availableFormats = result.trim().split('\n').slice(-15).join('\n');
+        } catch (e) {
+            debugInfo.availableFormats = e.stderr ? e.stderr.toString().substring(0, 500) : e.message;
+        }
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(debugInfo, null, 2));
         return;
     }
+
 
 
     // 1 & 2. PDF to DOCX & PPTX Converters
